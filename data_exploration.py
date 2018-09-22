@@ -20,18 +20,37 @@ from sklearn import preprocessing
 
 raw_df = pd.read_excel(r"C:\Users\s1883483\Desktop\2018 Rotman Datathon\Churn+Case+Data+UVAQA0806X.xlsx", sheetname="Case Data")
 
-class data_exp:
+#%% chanllenges 
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree.export import export_graphviz
+from sklearn.feature_selection import mutual_info_classif
+from sklearn.externals.six import StringIO  
+from IPython.display import Image  
+import pydotplus
+
+#%% build decision tree
+features = ['ID', 'Customer Age (in months)', 'Churn (1 = Yes, 0 = No)',
+       'CHI Score Month 0', 'CHI Score 0-1', 'Support Cases Month 0',
+       'Support Cases 0-1', 'SP Month 0', 'SP 0-1', 'Logins 0-1',
+       'Blog Articles 0-1', 'Views 0-1', ' Days Since Last Login 0-1']
+
+feature_matrix = raw_df[features]
+
+churn_result = raw_df['Churn (1 = Yes, 0 = No)']
+
+dt_cla = DecisionTreeClassifier()
+
+dt_cla = dt_cla.fit(feature_matrix, churn_result)
+
+#%% plot decision tree
+
+dot_data = StringIO()
+export_graphviz(dt_cla, out_file=dot_data,  
+                filled=True, rounded=True,
+                special_characters=True)
+
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+
+Image(graph.create_png())
     
-    def __init__(self,):
-        
     
-    def plot_corr(self):
-        stock_df = normalize_stock(self.stock_df)
-        stock_df = date_range(self.date_start, self.date_end, stock_df)
-        corr = stock_df.T.corr()
-        corr_top_index = corr[self.tar_equity].sort_values(ascending=False)[:self.top_k].index.tolist()
-        corr_top = stock_df.T[corr_top_index ].corr()
-        plt.figure(figsize=(16, 16))
-        corr_map = sns.heatmap(corr_top, xticklabels=corr_top.columns, yticklabels=corr_top.columns, annot=True)
-        figure = corr_map.get_figure()    
-        figure.savefig(r'C:\Users\s1883483\Desktop\Advanced analytics projects\coding cafe\KNN output\stock_corr.png', dpi=800)
